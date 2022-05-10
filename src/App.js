@@ -1,25 +1,147 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import Die from "./components/Die";
+import { nanoid } from "nanoid";
+import Confetti from "react-confetti";
+import "./App.css";
+import Dot from "./components/Dot";
 
-function App() {
+const App = () => {
+  const [tenzies, setTenzies] = useState(false);
+
+  //function to generate new dice
+  const generateNewDice = () => {
+    return {
+      number: Math.ceil(Math.random() * 6),
+      id: nanoid(),
+      isHeld: false,
+    };
+  };
+  //function to create an array of new dice
+  const allNewDice = () => {
+    const newDice = [];
+    for (let i = 0; i < 10; i++) {
+      newDice.push(generateNewDice());
+    }
+    return newDice;
+  };
+
+  //function to hold dice when clicked
+  const holdDice = (id) => {
+    setDice((oldDice) =>
+      oldDice.map((die) => {
+        return die.id === id ? { ...die, isHeld: !die.isHeld } : die;
+      })
+    );
+  };
+
+  //function to roll dice
+  const rollCounter = () => {
+    setRollCount(rollCount + 1);
+  };
+
+  const rollDice = () => {
+    if (tenzies) {
+      setTenzies(false);
+      console.log(rollCount);
+      setDice(allNewDice());
+    } else {
+      setDice((oldDice) =>
+        oldDice.map((die) => {
+          return die.isHeld ? die : generateNewDice();
+        })
+      );
+    }
+  };
+
+  const [dice, setDice] = useState(allNewDice());
+  const [rollCount, setRollCount] = useState(0);
+  const diceElements = dice.map((die) => (
+    <Die
+      number={die.number}
+      key={die.id}
+      isHeld={die.isHeld}
+      holdDice={() => {
+        holdDice(die.id);
+      }}
+    />
+  ));
+
+  useEffect(() => {
+    const allHeld = dice.every((die) => die.isHeld);
+    const firstValue = dice[0].number;
+    const allSameValue = dice.every((die) => die.number === firstValue);
+    if (allHeld && allSameValue) {
+      setTenzies(true);
+    }
+  }, [dice]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {tenzies && <Confetti />}
+      <div style={{ background: "#0b2434", padding: "20px", display: "flex" }}>
+        <Container>
+          <h1>Tenzies</h1>
+          <p>
+            Roll until all dice are the same. Click each die to freeze it at its
+            current value between rolls.
+          </p>
+
+          <DiceContainer>{diceElements}</DiceContainer>
+          <Button
+            onClick={() => {
+              rollDice();
+              rollCounter();
+            }}
+          >
+            {tenzies ? "New Game" : "Roll"}
+          </Button>
+        </Container>
+
+        <Dot />
+      </div>
     </div>
   );
-}
+};
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f5f5f5;
+  box-sizing: border-box;
+  border-radius: 10px;
+  padding: 50px;
+`;
+
+const DiceContainer = styled.div`
+  display: grid;
+  grid-template: auto auto / repeat(5, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+  margin-top: 40px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    display: grid;
+    grid-template: auto auto / repeat(4, 1fr);
+  }
+
+  @media (max-width: 320px) {
+    flex-direction: column;
+    display: grid;
+    grid-template: auto auto / repeat(2, 1fr);
+  }
+`;
+
+const Button = styled.button`
+  background: #5035ff;
+  color: white;
+  width: 100px;
+  height: 50px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+`;
 export default App;
