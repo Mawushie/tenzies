@@ -43,7 +43,7 @@ const App = () => {
   const rollDice = () => {
     if (tenzies) {
       setTenzies(false);
-      console.log(rollCount);
+      // console.log(rollCount);
       setDice(allNewDice());
     } else {
       setDice((oldDice) =>
@@ -96,9 +96,8 @@ const App = () => {
           >
             {tenzies ? "New Game" : "Roll"}
           </Button>
+          {tenzies && <p>Number of Rolls: {rollCount}</p>}
         </Container>
-
-        <Dot />
       </div>
     </div>
   );
