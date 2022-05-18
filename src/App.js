@@ -4,10 +4,12 @@ import Die from "./components/Die";
 import { nanoid } from "nanoid";
 import Confetti from "react-confetti";
 import "./App.css";
-import Dot from "./components/Dot";
 
 const App = () => {
   const [tenzies, setTenzies] = useState(false);
+  const [rollCount, setRollCount] = useState(0);
+  const [timer, setTimer] = useState(0);
+  const [gameTme, setGameTime] = useState([]);
 
   //function to generate new dice
   const generateNewDice = () => {
@@ -45,6 +47,7 @@ const App = () => {
       setTenzies(false);
       // console.log(rollCount);
       setDice(allNewDice());
+      setTimer(0);
     } else {
       setDice((oldDice) =>
         oldDice.map((die) => {
@@ -55,7 +58,7 @@ const App = () => {
   };
 
   const [dice, setDice] = useState(allNewDice());
-  const [rollCount, setRollCount] = useState(0);
+
   const diceElements = dice.map((die) => (
     <Die
       number={die.number}
@@ -66,6 +69,21 @@ const App = () => {
       }}
     />
   ));
+
+  useEffect(() => {
+    let interval = null;
+    if (tenzies === false) {
+      interval = setInterval(() => {
+        setTimer((time) => time + 1);
+      }, 1000);
+    } else if (tenzies === true) {
+      setGameTime((oldTime) => [...oldTime, timer]);
+      console.log(gameTme);
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [tenzies, timer]);
 
   useEffect(() => {
     const allHeld = dice.every((die) => die.isHeld);
@@ -97,6 +115,7 @@ const App = () => {
             {tenzies ? "New Game" : "Roll"}
           </Button>
           {tenzies && <p>Number of Rolls: {rollCount}</p>}
+          <p>Time : {timer}s</p>
         </Container>
       </div>
     </div>
