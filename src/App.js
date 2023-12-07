@@ -78,7 +78,7 @@ const App = () => {
       }, 1000);
     } else if (tenzies === true) {
       setGameTime((oldTime) => [...oldTime, timer]);
-      console.log(gameTme);
+      // console.log(gameTme);
       clearInterval(interval);
     }
 
